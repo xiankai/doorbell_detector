@@ -1,5 +1,9 @@
 # Doorbell Detector
 
+This simple script uses the recording device on your machine (like a raspberry pi, I use an Orange Pi 3 LTS) to classify audio and send an alert to a webhook URL if certain audio events are detected past a threshold.
+
+Note that this is tailored for Linux, and doesn't run on Apple Silicon out of the box because of the lack of `tflite_support` pre-built binaries. (`mediapipe` is newer but less documented).
+
 ## Using Teachable Machine
 
 https://teachablemachine.withgoogle.com/
@@ -26,9 +30,9 @@ Then the JSON format is reconstructed and zipped up so that it can be uploaded t
 
 ### Running inference
 
-1. pip install -r requirements_teachable_machine.txt
+1. `pip install -r requirements_teachable_machine.txt`
 1. Fill out `.env`. Variable reference below. No quotes necessary.
-1. python3 monitor_with_teachable_machine.py
+1. `python3 monitor_with_teachable_machine.py`
 
 | Variable name        | Example value                        | Description                                                                          |
 | -------------------- | ------------------------------------ | ------------------------------------------------------------------------------------ |
@@ -48,9 +52,9 @@ Using `sounddevice` to extract samples, doing naive downsampling to the 16khz re
 
 ### Running inference
 
-1. pip install -r requirements_yamnet.txt
+1. `pip install -r requirements_yamnet.txt`
 1. Fill out `.env`. Variable reference below. No quotes necessary.
-1. python3 monitor_with_yamnet.py
+1. `python3 monitor_with_yamnet.py`
 
 | Variable name         | Example value  | Description                                                                                                                                                                                                                |
 | --------------------- | -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
