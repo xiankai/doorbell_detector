@@ -50,8 +50,6 @@ Using `sounddevice` to extract samples, doing naive downsampling to the 16khz re
 
 ### Running inference
 
-### Running inference
-
 1. `pip install -r requirements_yamnet.txt`
 1. Fill out `.env`. Variable reference below. No quotes necessary.
 1. `python3 monitor_with_yamnet.py`
