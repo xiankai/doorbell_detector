@@ -1,0 +1,4 @@
+tflite_support >= 0.4.3
+time
+requests
+dotenv

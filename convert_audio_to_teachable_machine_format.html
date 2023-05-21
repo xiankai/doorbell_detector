@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>File Upload and Processing</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.5.0/jszip.min.js"></script>
+  </head>
+  <body>
+    <h1>File Upload and Processing</h1>
+
+    <input type="file" id="fileInput" multiple />
+    <button onclick="processFiles()">Upload and Process</button>
+    <button onclick="downloadZip()">Download All</button>
+
+    <script>
+      let zip;
+      let allProcessedData = [];
+
+      function processFiles() {
+        const fileInput = document.getElementById('fileInput');
+        const files = fileInput.files;
+
+        if (files.length > 0) {
+          zip = new JSZip();
+
+          for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            const reader = new FileReader();
+
+            reader.onload = async function (e) {
+              const arrayBuffer = e.target.result;
+              // Process the array buffer here and generate the processed output
+              const processedData = await processAudioBuffer(
+                arrayBuffer,
+                file.name
+              );
+
+              allProcessedData.push(processedData);
+
+              // Check if all files have been processed
+              if (allProcessedData.length === files.length) {
+                console.log('All files processed:', processedData);
+              }
+
+              zip.file(file.name, file);
+            };
+
+            reader.readAsArrayBuffer(file);
+          }
+        } else {
+          console.log('No files selected.');
+        }
+      }
+
+      function downloadZip() {
+        if (zip) {
+          const jsonData = JSON.stringify(allProcessedData);
+          const blob = new Blob([jsonData], { type: 'application/json' });
+          zip.file('samples.json', blob);
+
+          zip.generateAsync({ type: 'blob' }).then(function (content) {
+            // Create a download link for the zip file
+            const downloadLink = document.createElement('a');
+            downloadLink.href = URL.createObjectURL(content);
+            downloadLink.download = 'processed_files.zip';
+            downloadLink.click();
+          });
+        } else {
+          console.log('No processed files to download.');
+        }
+      }
+
+      // adapted from https://discuss.tensorflow.org/t/custom-audio-classification-with-teachable-machine/5332/6
+      async function processAudioBuffer(buffer, filename) {
+        let c = new AudioContext({
+          sampleRate: 44100,
+        });
+        let b = await c.decodeAudioData(buffer);
+
+        let freqDataQueue = [];
+        let columnTruncateLength = 232;
+
+        let oac = new OfflineAudioContext({
+          numberOfChannels: b.numberOfChannels,
+          length: b.length,
+          sampleRate: 44100,
+        });
+
+        const source = oac.createBufferSource();
+        const processor = oac.createScriptProcessor(1024, 1, 1);
+
+        const analyser = oac.createAnalyser();
+        analyser.fftSize = 2048;
+        analyser.smoothingTimeConstant = 0;
+
+        source.buffer = b;
+
+        source.connect(analyser);
+        analyser.connect(processor);
+        processor.connect(oac.destination);
+
+        var freqData = new Float32Array(analyser.fftSize);
+        processor.onaudioprocess = () => {
+          analyser.getFloatFrequencyData(freqData);
+          freqDataQueue.push(freqData.slice(0, columnTruncateLength));
+        };
+
+        source.start(0);
+        oac.startRendering();
+
+        return new Promise((resolve) => {
+          oac.oncomplete = (e) => {
+            resolve(formatFreqData(freqDataQueue, filename));
+            source.disconnect(analyser);
+            processor.disconnect(oac.destination);
+          };
+        });
+      }
+
+      function formatFreqData(freqData, filename) {
+        return {
+          frequencyFrames: freqData.map((float32array) =>
+            Array.from(float32array)
+          ),
+          blob: null,
+          startTime: 0,
+          endTime: 4,
+          recordingDuration: 4,
+          blobFilePath: filename,
+        };
+      }
+    </script>
+  </body>
+</html>
