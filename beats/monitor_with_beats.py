@@ -17,7 +17,7 @@ recording_sample_rate=int(os.environ['RECORDING_SAMPLE_RATE'])
 desired_sample_rate=16000 # specific to yamnet
 buffer_size=15600 # specific to yamnet
 monitored_categories=','.split(os.environ['MONITORED_CATEGORIES'])
-score_threshold=int(os.environ['SCORE_THRESHOLD'])
+score_threshold=float(os.environ['SCORE_THRESHOLD'])
 webhook_url=os.environ['WEBHOOK_URL']
 
 # Initialization
@@ -40,8 +40,7 @@ def format_categories(categories):
   return formatted_categories
 
 # Inference loop
-stream = sd.InputStream(device = 1, channels = 1, samplerate=recording_sample_rate, callback = audio_callback, blocksize = buffer_size)
-audio_format=audio.AudioFormat(1,desired_sample_rate)
+stream = sd.InputStream(device = 0, channels = 1, samplerate=recording_sample_rate, callback = audio_callback, blocksize = buffer_size)
 print('recording started')
 with stream:
   while True:

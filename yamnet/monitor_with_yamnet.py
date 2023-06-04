@@ -16,7 +16,7 @@ recording_sample_rate=int(os.environ['RECORDING_SAMPLE_RATE'])
 desired_sample_rate=16000 # specific to yamnet
 buffer_size=15600 # specific to yamnet
 monitored_categories=','.split(os.environ['MONITORED_CATEGORIES'])
-score_threshold=int(os.environ['SCORE_THRESHOLD'])
+score_threshold=float(os.environ['SCORE_THRESHOLD'])
 webhook_url=os.environ['WEBHOOK_URL']
 
 # Initialization
