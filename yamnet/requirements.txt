@@ -1,6 +1,5 @@
 tflite_support >= 0.4.3
 sounddevice
 numpy
-time
 requests
-dotenv
+python-dotenv
