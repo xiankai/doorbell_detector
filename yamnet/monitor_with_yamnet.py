@@ -10,14 +10,14 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Parameters
-sampling_interval=float(os.environ('SAMPLING_INTERVAL'))
-model_path=os.environ('MODEL_PATH')
-recording_sample_rate=int(os.environ('RECORDING_SAMPLE_RATE'))
+sampling_interval=float(os.environ['SAMPLING_INTERVAL'])
+model_path=os.environ['MODEL_PATH']
+recording_sample_rate=int(os.environ['RECORDING_SAMPLE_RATE'])
 desired_sample_rate=16000 # specific to yamnet
 buffer_size=15600 # specific to yamnet
-monitored_categories=','.split(os.environ('MONITORED_CATEGORIES'))
-score_threshold=int(os.environ('SCORE_THRESHOLD'))
-webhook_url=os.environ('WEBHOOK_URL')
+monitored_categories=','.split(os.environ['MONITORED_CATEGORIES'])
+score_threshold=int(os.environ['SCORE_THRESHOLD'])
+webhook_url=os.environ['WEBHOOK_URL']
 
 # Initialization
 classifier = audio.AudioClassifier.create_from_file(model_path)

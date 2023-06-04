@@ -8,11 +8,11 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Parameters
-sampling_interval=float(os.environ('SAMPLING_INTERVAL'))
-model_path=os.environ('MODEL_PATH')
-monitored_categories=','.split(os.environ('MONITORED_CATEGORIES'))
-score_threshold=float(os.environ('SCORE_THRESHOLD'))
-webhook_url=os.environ('WEBHOOK_URL')
+sampling_interval=float(os.environ['SAMPLING_INTERVAL'])
+model_path=os.environ['MODEL_PATH']
+monitored_categories=','.split(os.environ['MONITORED_CATEGORIES'])
+score_threshold=float(os.environ['SCORE_THRESHOLD'])
+webhook_url=os.environ['WEBHOOK_URL']
 
 # Initialization
 classifier = audio.AudioClassifier.create_from_file(model_path)
