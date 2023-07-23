@@ -14,8 +14,8 @@ load_dotenv()
 sampling_interval=float(os.environ['SAMPLING_INTERVAL'])
 model_path=os.environ['MODEL_PATH']
 recording_sample_rate=int(os.environ['RECORDING_SAMPLE_RATE'])
-desired_sample_rate=16000 # specific to yamnet
-buffer_size=15600 # specific to yamnet
+desired_sample_rate=16000 # specific to BEATS
+buffer_size=15600
 monitored_categories=','.split(os.environ['MONITORED_CATEGORIES'])
 score_threshold=float(os.environ['SCORE_THRESHOLD'])
 webhook_url=os.environ['WEBHOOK_URL']
@@ -33,11 +33,6 @@ def audio_callback(indata, frames, time, status):
   global audio_array
   audio_array = indata[::int(recording_sample_rate/desired_sample_rate)]
 
-def format_categories(categories):
-  formatted_categories = {}
-  for category in categories:
-    formatted_categories[category.category_name] = round(category.score, 2)
-  return formatted_categories
 
 # Inference loop
 stream = sd.InputStream(device = 0, channels = 1, samplerate=recording_sample_rate, callback = audio_callback, blocksize = buffer_size)
