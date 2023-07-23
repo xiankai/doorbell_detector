@@ -59,8 +59,12 @@ with stream:
     with torch.no_grad():
       probs = BEATs_model.extract_features(tensor, padding_mask)[0]
 
-    for i, (top5_label_prob, top5_label_idx) in enumerate(zip(*probs.topk(k=5))):
-      top5_label = [labels[checkpoint['label_dict'][label_idx.item()]] for label_idx in top5_label_idx]
-      print(f'Top 5 predicted labels of audio #{i+1} are {top5_label} with probability of {top5_label_prob}')
+    for _, (top5_label_prob, top5_label_idx) in enumerate(zip(*probs.topk(k=5))):
+      for i, label_idx  in enumerate(top5_label_idx):
+        mid = checkpoint['label_dict'][label_idx.item()]
+        label = labels[mid]
+        prob = top5_label_prob[i]
+        print(f'{label}: {prob}')
 
+    print('\n')
     time.sleep(sampling_interval)
