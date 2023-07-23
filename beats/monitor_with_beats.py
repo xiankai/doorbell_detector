@@ -26,22 +26,17 @@ cfg = BEATsConfig(checkpoint['cfg'])
 BEATs_model = BEATs(cfg)
 BEATs_model.load_state_dict(checkpoint['model'])
 BEATs_model.eval()
-audio_array = np.zeros((int(desired_sample_rate), 1))
-
-def audio_callback(indata, frames, time, status):
-  # Downsample the input data
-  global audio_array
-  audio_array = indata[::int(recording_sample_rate/desired_sample_rate)]
+audio_array = np.zeros((1, int(desired_sample_rate)))
 
 
 # Inference loop
-stream = sd.InputStream(device = 0, channels = 1, samplerate=recording_sample_rate, callback = audio_callback, blocksize = buffer_size)
+stream = sd.InputStream(device = 0, channels = 1, samplerate=recording_sample_rate, blocksize = buffer_size)
 print('recording started')
 with stream:
   while True:
-    # predict the classification probability of each class
-    audio_input_16khz = torch.tensor(audio_array)
-    padding_mask = torch.zeros(1, 10000).bool()
+    # Record audio from the stream
+    audio_array, _ = stream.read(buffer_size)
+
 
     probs = BEATs_model.extract_features(audio_input_16khz, padding_mask=padding_mask)[0]
 
