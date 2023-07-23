@@ -8,6 +8,7 @@ import numpy as np
 import time
 import requests
 import os
+import pandas
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -20,6 +21,10 @@ buffer_size=15600
 monitored_categories=','.split(os.environ['MONITORED_CATEGORIES'])
 score_threshold=float(os.environ['SCORE_THRESHOLD'])
 webhook_url=os.environ['WEBHOOK_URL']
+labels_csv_file=os.environ['LABELS_CSV_FILE']
+
+# Import the CSV file, conver to dict with 'mid' as key and 'display_name' as value
+labels = pandas.read_csv(labels_csv_file).set_index('mid').to_dict()['display_name']
 
 # Initialization
 checkpoint = torch.load(model_path)
@@ -61,7 +66,7 @@ with stream:
       probs = BEATs_model.extract_features(tensor, padding_mask)[0]
 
     for i, (top5_label_prob, top5_label_idx) in enumerate(zip(*probs.topk(k=5))):
-      top5_label = [checkpoint['label_dict'][label_idx.item()] for label_idx in top5_label_idx]
-      print(f'Top 5 predicted labels of the {i}th audio are {top5_label} with probability of {top5_label_prob}')
+      top5_label = [labels[checkpoint['label_dict'][label_idx.item()]] for label_idx in top5_label_idx]
+      print(f'Top 5 predicted labels of audio #{i+1} are {top5_label} with probability of {top5_label_prob}')
 
     time.sleep(sampling_interval)

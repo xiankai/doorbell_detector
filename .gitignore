@@ -1,2 +1,14 @@
+# Tensorflow Lite models
 *.tflite
+
+# Pytorch models
+*.pt
+
+# Classification file
+*.csv
+
 .env
+
+# Local env
+venv
+__pycache__
