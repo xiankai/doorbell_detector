@@ -17,7 +17,7 @@ sampling_interval=float(os.environ['SAMPLING_INTERVAL'])
 model_path=os.environ['MODEL_PATH']
 recording_sample_rate=int(os.environ['RECORDING_SAMPLE_RATE'])
 desired_sample_rate=16000 # specific to BEATS
-buffer_size=15600
+buffer_size=10000
 monitored_categories=','.split(os.environ['MONITORED_CATEGORIES'])
 score_threshold=float(os.environ['SCORE_THRESHOLD'])
 webhook_url=os.environ['WEBHOOK_URL']
@@ -49,18 +49,12 @@ with stream:
     # Record audio from the stream
     audio_array, _ = stream.read(buffer_size)
 
-    # Crude method of converting ndarray(15600,1) to Tensor.shape(3,10000) with copilot
-
-    # Reshape the audio_array to have shape (3, 5200, 1)
-    audio_array = audio_array.reshape(3, 5200, 1)
-    # Pad the audio_array along the second dimension to have length 10000
-    audio_array = np.pad(audio_array, ((0, 0), (0, 4800), (0, 0)), mode='constant')
-    # Remove the last dimension of the audio_array
-    audio_array = np.squeeze(audio_array)
-    # Convert the audio_array to a PyTorch tensor
+    # Crude method of converting ndarray(10000,1) to Tensor.shape(1,10000) with copilot
     tensor = torch.from_numpy(audio_array)
+    tensor = torch.transpose(tensor, 0, 1)
+    tensor = resample(tensor)
 
-    padding_mask = torch.zeros(3, 10000).bool()
+    padding_mask = torch.zeros(1, 10000).bool()
     # torch.no_grad is for performance https://github.com/microsoft/unilm/issues/998#issuecomment-1461310468
     with torch.no_grad():
       probs = BEATs_model.extract_features(tensor, padding_mask)[0]
