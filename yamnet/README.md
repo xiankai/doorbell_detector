@@ -44,4 +44,4 @@ Potential Options
 
 I just use `nohup`.
 
-`nohup python3 monitor_with_yamnet.py`
+`nohup python3 monitor_with_yamnet.py &`
