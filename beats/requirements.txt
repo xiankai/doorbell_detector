@@ -4,3 +4,4 @@ sounddevice
 numpy
 requests
 python-dotenv
+pandas

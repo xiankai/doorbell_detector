@@ -59,20 +59,14 @@ with stream:
     with torch.no_grad():
       probs = BEATs_model.extract_features(tensor, padding_mask)[0]
 
-    # for _, (top5_label_prob, top5_label_idx) in enumerate(zip(*probs.topk(k=5))):
-    #   for i, label_idx  in enumerate(top5_label_idx):
-    #     mid = checkpoint['label_dict'][label_idx.item()]
-    #     label = labels[mid]
-    #     prob = top5_label_prob[i]
-    #     if prob > score_threshold:
-    #       print(f'{label}: {prob}')
-    # print('\n')
-
     for _, (top5_label_prob, top5_label_idx) in enumerate(zip(*probs.topk(k=5))):
       for i, label_idx  in enumerate(top5_label_idx):
         mid = checkpoint['label_dict'][label_idx.item()]
         label = labels[mid]
         prob = top5_label_prob[i]
+
+        # # For debug output
+        # print(f'{label}: {prob} \n')
         if prob > score_threshold and label in monitored_categories:
           try:
             response = requests.post(webhook_url, json={label: prob})
