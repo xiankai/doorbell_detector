@@ -1,0 +1,14 @@
+# Inference
+einops
+ignite
+loguru
+numpy
+pandas
+torch
+torch_audiomentations
+torchaudio
+
+# Monitoring
+sounddevice
+requests
+python-dotenv
