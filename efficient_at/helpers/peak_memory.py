@@ -50,7 +50,7 @@ def peak_memory_mnv3(model, spec_size, bits_per_elem=16):
         children = []
         if hasattr(net, "features"):
             # first call to foo with full network
-            # treat first ConvNormActivation and InvertedResidual - can be calculated memory efficient
+            # treat first Conv2dNormActivation and InvertedResidual - can be calculated memory efficient
             net.features[0].register_forward_hook(in_conv_hook)
             net.features[1].register_forward_hook(first_inv_residual_block_hook)
             children = list(net.features.children())[2:]
