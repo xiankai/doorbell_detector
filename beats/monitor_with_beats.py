@@ -21,10 +21,9 @@ buffer_size=10000
 monitored_categories=','.split(os.environ['MONITORED_CATEGORIES'])
 score_threshold=float(os.environ['SCORE_THRESHOLD'])
 webhook_url=os.environ['WEBHOOK_URL']
-labels_csv_file=os.environ['LABELS_CSV_FILE']
 
 # Import the CSV file, conver to dict with 'mid' as key and 'display_name' as value
-labels = pandas.read_csv(labels_csv_file).set_index('mid').to_dict()['display_name']
+labels = pandas.read_csv('class_labels_indices.csv').set_index('mid').to_dict()['display_name']
 
 # Initialization
 checkpoint = torch.load(model_path)

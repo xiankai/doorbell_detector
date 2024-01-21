@@ -4,9 +4,6 @@
 # Pytorch models
 *.pt
 
-# Classification file
-*.csv
-
 .env
 
 # Local env
