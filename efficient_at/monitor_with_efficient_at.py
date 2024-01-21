@@ -19,7 +19,11 @@ sampling_interval=float(os.environ['SAMPLING_INTERVAL'])
 model_name=os.environ['MODEL_NAME']
 recording_sample_rate=int(os.environ['RECORDING_SAMPLE_RATE'])
 desired_sample_rate=32000 # ref: https://github.com/fschmid56/EfficientAT/issues/17#issuecomment-1681842622
-buffer_size=10000
+buffer_size, remainder=divmod(desired_sample_rate, sampling_interval)
+if remainder == 0:
+  buffer_size=int(buffer_size)
+else:
+  raise ValueError(f'The sampling interval {sampling_interval}s is not a factor of the required sample rate of {desired_sample_rate}hz.')
 
 # taken from default values in `inference.py`
 window_size=800

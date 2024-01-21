@@ -17,7 +17,11 @@ sampling_interval=float(os.environ['SAMPLING_INTERVAL'])
 model_path=os.environ['MODEL_PATH']
 recording_sample_rate=int(os.environ['RECORDING_SAMPLE_RATE'])
 desired_sample_rate=16000 # specific to BEATS
-buffer_size=10000
+buffer_size, remainder=divmod(desired_sample_rate, sampling_interval)
+if remainder == 0:
+  buffer_size=int(buffer_size)
+else:
+  raise ValueError(f'The sampling interval {sampling_interval}s is not a factor of the required sample rate of {desired_sample_rate}hz.')
 monitored_categories=','.split(os.environ['MONITORED_CATEGORIES'])
 score_threshold=float(os.environ['SCORE_THRESHOLD'])
 webhook_url=os.environ['WEBHOOK_URL']
