@@ -1,0 +1,10 @@
+# For model inference
+torch
+torchaudio
+torchvision
+numpy
+
+# For monitoring
+sounddevice
+requests
+python-dotenv
