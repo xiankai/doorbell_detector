@@ -11,6 +11,11 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 
+TAPO_USERNAME=os.environ['TAPO_USERNAME']
+TAPO_PASSWORD=os.environ['TAPO_PASSWORD']
+RIGHT_BULB=os.environ['RIGHT_BULB']
+LEFT_BULB=os.environ['LEFT_BULB']
+
 # Parameters
 sampling_interval=float(os.environ['SAMPLING_INTERVAL'])
 model_name=os.environ['MODEL_NAME']
@@ -41,6 +46,41 @@ def resample(tensor):
     resampler = transforms.Resample(orig_freq=recording_sample_rate, new_freq=desired_sample_rate)
     tensor = resampler(tensor)
   return tensor
+
+import asyncio
+from tapo import ApiClient
+import time
+import os
+
+TAPO_USERNAME=os.environ['TAPO_USERNAME']
+TAPO_PASSWORD=os.environ['TAPO_PASSWORD']
+RIGHT_BULB=os.environ['RIGHT_BULB']
+LEFT_BULB=os.environ['LEFT_BULB']
+
+client = ApiClient(TAPO_USERNAME, TAPO_PASSWORD)
+
+async def init():
+  right_bulb = await client.l510(RIGHT_BULB)
+  left_bulb = await client.l510(LEFT_BULB)
+
+  await right_bulb.on()
+  await left_bulb.on()
+
+  return (right_bulb, left_bulb)
+
+async def flicker():
+  (right_bulb, left_bulb) = await init()
+
+  for i in range(1, 8):
+    right_brightness = 80 if i % 2 == 0 else 20
+    right_bulb.set_brightness(right_brightness)
+    left_brightness = 20 if i % 2 == 0 else 80
+    left_bulb.set_brightness(left_brightness)
+    time.sleep(1)
+
+  print('resetting')
+  right_bulb.set_brightness(20)
+  left_bulb.set_brightness(20)
 
 # Inference loop
 stream = sd.InputStream(device = 0, channels = 1, samplerate=recording_sample_rate, blocksize = buffer_size)
@@ -74,12 +114,7 @@ with stream, torch.no_grad():
       # # For debug output
       print(f'{label_name}: {prob:.3f}')
       if prob > score_threshold and label_name in monitored_categories:
-        try:
-          response = requests.post(webhook_url, json={label_name: prob})
-          if response.status_code == 200:
-            time.sleep(8)
-        except:
-          pass
+        asyncio.run(flicker())
 
     print("\n")
     time.sleep(sampling_interval)

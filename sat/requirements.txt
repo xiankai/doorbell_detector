@@ -12,3 +12,4 @@ torchaudio
 sounddevice
 requests
 python-dotenv
+tapo
