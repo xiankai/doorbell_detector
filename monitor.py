@@ -1,8 +1,6 @@
 print('starting up (imports, initialization, etc.)')
 import torch
 from torchaudio import transforms
-# from torch.profiler import profile, record_function, ProfilerActivity
-import pandas as pd
 
 import sounddevice as sd
 import time
@@ -13,37 +11,34 @@ load_dotenv()
 from notifications.tapo import flicker
 from notifications.webhook import ping
 
+# Choose ml strategy and model
+ml_strategy = os.environ['ML_STRATEGY']
+model_name = os.environ['MODEL_NAME']
+from importlib import import_module
+import sys
+sys.path.append(os.getcwd() + '/strategies/' + ml_strategy)
+# all strategys should implement the following functions
+module = import_module(f"strategies.{ml_strategy}.entrypoint")
+init, inference, desired_sample_rate = module.init, module.inference, module.desired_sample_rate
+
 # Parameters
 notification_method=os.environ['NOTIFICATION_METHOD']
 sampling_interval=float(os.environ['SAMPLING_INTERVAL'])
 recording_sample_rate=int(os.environ['RECORDING_SAMPLE_RATE'])
-desired_sample_rate=16000 # ref: `inference.py``
-buffer_size, remainder=divmod(desired_sample_rate, sampling_interval)
-if remainder == 0:
-  buffer_size=int(buffer_size)
-else:
-  raise ValueError(f'The sampling interval {sampling_interval}s is not a factor of the required sample rate of {desired_sample_rate}hz.')
+
+sampling_interval = desired_sample_rate / recording_sample_rate
+print(f'sampling every {sampling_interval} seconds')
 
 # Common labels
 monitored_categories=','.split(os.environ['MONITORED_CATEGORIES'])
 score_threshold=float(os.environ['SCORE_THRESHOLD'])
 webhook_url=os.environ['WEBHOOK_URL']
-label_maps = pd.read_csv('class_labels_indices.csv').set_index('index')['display_name'].to_dict()
-
-# Choose ml method and model
-ml_method = os.environ['ML_METHOD']
-model_name = os.environ['MODEL_NAME']
-from importlib import import_module
-# import sys
-# sys.path.append(os.getcwd() + '/methods/' + ml_method)
-# all methods should implement the following functions
-init, inference, format = import_module(f"methods.{ml_method}")
 
 if model_name:
-  print(f'initializing ml method {ml_method} with model {model_name}')
+  print(f'initializing ml strategy {ml_strategy} with model {model_name}')
   model = init(model_name)
 else:
-  print(f'initializing ml method {ml_method}')
+  print(f'initializing ml strategy {ml_strategy}')
   model = init()
 
 # Define a function to resample audio
@@ -55,26 +50,22 @@ def resample(tensor):
 
 # Inference loop
 iterationsRan = 0;
-stream = sd.InputStream(device = 1, channels = 1, samplerate=recording_sample_rate, blocksize = buffer_size)
+default_input_device = sd.default.device[0]
+
+stream = sd.InputStream(device = default_input_device, channels = 1, samplerate=desired_sample_rate, blocksize=desired_sample_rate)
 print('recording started')
 # torch.no_grad is for performance https://github.com/microsoft/unilm/issues/998#issuecomment-1461310468
-with stream, torch.no_grad(), """profile(
-  activities=[ProfilerActivity.CPU],
-  profile_memory=True,
-) as prof""":
-  # while iterationsRan < 10:
+with stream, torch.no_grad():
   while True:
     # Record audio from the stream
-    audio_array, _ = stream.read(buffer_size)
+    audio_array, _ = stream.read(desired_sample_rate)
 
-    # Crude method of converting ndarray(10000,1) to Tensor.shape(1,10000) with copilot
     tensor = torch.from_numpy(audio_array)
     tensor = torch.transpose(tensor, 0, 1)
-    tensor = resample(tensor)
 
     output = inference(tensor)
 
-    # Print audio tagging top probabilities
+    print('\n')
     for (prob, label) in output:
       print(f'{label}: {prob:.3f}')
       if prob > score_threshold and label in monitored_categories:
@@ -87,7 +78,4 @@ with stream, torch.no_grad(), """profile(
         except:
           pass
 
-    time.sleep(sampling_interval)
-    # iterationsRan += 1
-
-# prof.export_chrome_trace("trace.json")
+    # time.sleep(sampling_interval)
