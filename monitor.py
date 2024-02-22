@@ -63,11 +63,13 @@ with stream, torch.no_grad():
 
     output = inference(tensor)
 
-    print('\n')
+    # print('\n')
     for (prob, label) in output:
-      print(f'{label}: {prob:.3f}')
+      # print(f'{label}: {prob:.3f}')
       if prob > score_threshold and label in monitored_categories:
         try:
+          print(f'{label}: {prob:.3f}')
+          print('\n')
           if notification_method == 'webhook':
             ping({[label]: prob})
           elif 'tapo':
