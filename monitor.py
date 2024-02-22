@@ -70,11 +70,10 @@ with stream, torch.no_grad():
       print(f'{label}: {prob:.3f}')
       if prob > score_threshold and label in monitored_categories:
         try:
-          match notification_method:
-            case 'webhook':
-              ping({[label]: prob})
-            case 'tapo':
-              flicker()
+          if notification_method == 'webhook':
+            ping({[label]: prob})
+          elif 'tapo':
+            flicker()
         except:
           pass
 
