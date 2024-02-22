@@ -30,7 +30,7 @@ sampling_interval = desired_sample_rate / recording_sample_rate
 print(f'sampling every {sampling_interval} seconds')
 
 # Common labels
-monitored_categories=','.split(os.environ['MONITORED_CATEGORIES'])
+monitored_categories=os.environ['MONITORED_CATEGORIES'].split(',')
 score_threshold=float(os.environ['SCORE_THRESHOLD'])
 webhook_url=os.environ['WEBHOOK_URL']
 
