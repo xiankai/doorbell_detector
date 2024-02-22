@@ -10,6 +10,7 @@ load_dotenv()
 
 from notifications.tapo import flicker
 from notifications.webhook import ping
+import asyncio
 
 # Choose ml strategy and model
 ml_strategy = os.environ['ML_STRATEGY']
@@ -71,9 +72,9 @@ with stream, torch.no_grad():
           print(f'{label}: {prob:.3f}')
           print('\n')
           if notification_method == 'webhook':
-            ping({[label]: prob})
+            asyncio.run(ping({[label]: prob}))
           elif 'tapo':
-            flicker()
+            asyncio.run(flicker())
         except:
           pass
 
