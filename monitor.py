@@ -23,7 +23,6 @@ init, inference, desired_sample_rate = module.init, module.inference, module.des
 
 # Parameters
 notification_method=os.environ['NOTIFICATION_METHOD']
-sampling_interval=float(os.environ['SAMPLING_INTERVAL'])
 recording_sample_rate=int(os.environ['RECORDING_SAMPLE_RATE'])
 
 sampling_interval = desired_sample_rate / recording_sample_rate
