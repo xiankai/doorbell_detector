@@ -48,10 +48,9 @@ def resample(tensor):
   return tensor
 
 # Inference loop
-iterationsRan = 0;
 default_input_device = sd.default.device[0]
 
-stream = sd.InputStream(device = default_input_device, channels = 1, samplerate=desired_sample_rate, blocksize=desired_sample_rate)
+stream = sd.InputStream(device = default_input_device, channels = 1, samplerate=recording_sample_rate, blocksize=desired_sample_rate)
 print('recording started')
 # torch.no_grad is for performance https://github.com/microsoft/unilm/issues/998#issuecomment-1461310468
 with stream, torch.no_grad():
