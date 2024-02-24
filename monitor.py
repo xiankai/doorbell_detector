@@ -4,6 +4,7 @@ from torchaudio import transforms
 
 import sounddevice as sd
 import time
+import datetime
 import os
 from dotenv import load_dotenv
 load_dotenv()
@@ -48,6 +49,18 @@ def resample(tensor):
     tensor = resampler(tensor)
   return tensor
 
+
+def check_schedule():
+  now = datetime.datetime.now()
+  if now.hour < 8:
+    time.sleep((8 - now.hour - 1) * 3600 + (3600 - now.minute * 60))
+    return
+  if now.hour >= 8 and now.hour < 22:
+    return
+  if now.hour >= 22:
+    time.sleep((8 + 24 - now.hour - 1) * 3600 + (3600 - now.minute * 60))
+    return
+
 # Inference loop
 default_input_device = sd.default.device[0]
 
@@ -56,6 +69,8 @@ print('recording started')
 # torch.no_grad is for performance https://github.com/microsoft/unilm/issues/998#issuecomment-1461310468
 with stream, torch.no_grad():
   while True:
+    check_schedule()
+
     # Record audio from the stream
     audio_array, _ = stream.read(desired_sample_rate)
 
