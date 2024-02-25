@@ -24,7 +24,7 @@ module = import_module(f"strategies.{ml_strategy}.entrypoint")
 init, inference, desired_sample_rate = module.init, module.inference, module.desired_sample_rate
 
 # Parameters
-notification_method=os.environ['NOTIFICATION_METHOD']
+notification_methods=os.environ['NOTIFICATION_METHODS'].split(',')
 recording_sample_rate=int(os.environ['RECORDING_SAMPLE_RATE'])
 
 sampling_interval = desired_sample_rate / recording_sample_rate
@@ -84,9 +84,11 @@ with stream, torch.no_grad():
       # print(f'{label}: {prob:.3f}')
       if prob > score_threshold and label in monitored_categories:
         try:
-          print(f'{label}: {prob:.3f}')
-          print('\n')
-          if notification_method == 'webhook':
+          if 'stdout' in notification_methods:
+            print(f'{label}: {prob:.3f}')
+            print('\n')
+
+          if 'webhook' in notification_methods:
             asyncio.run(ping({[label]: prob}))
           elif 'tapo':
             asyncio.run(flicker())
