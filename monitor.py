@@ -79,15 +79,14 @@ with stream, torch.no_grad():
 
     output = inference(tensor)
 
-    # print('\n')
+    if 'stdout' in notification_methods:
+      print('\n')
     for (prob, label) in output:
-      # print(f'{label}: {prob:.3f}')
+      if 'stdout' in notification_methods:
+        print(f'{label}: {prob:.3f}')
+
       if prob > score_threshold and label in monitored_categories:
         try:
-          if 'stdout' in notification_methods:
-            print(f'{label}: {prob:.3f}')
-            print('\n')
-
           if 'webhook' in notification_methods:
             asyncio.run(ping({[label]: prob}))
           elif 'tapo':
