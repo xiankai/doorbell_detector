@@ -24,6 +24,7 @@ async def init():
   return (right_bulb, left_bulb)
 
 async def flicker():
+  was_off = False
   (right_bulb, left_bulb) = await init()
 
   device_info_json = await right_bulb.get_device_info_json()
