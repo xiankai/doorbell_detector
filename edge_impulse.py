@@ -44,7 +44,7 @@ with AudioImpulseRunner(model_name) as runner:
         if score > score_threshold and label in monitored_categories:
           if 'webhook' in notification_methods:
             asyncio.run(ping({[label]: score}))
-          elif 'tapo':
+          elif 'tapo' in notification_methods:
             asyncio.run(flicker())
         if 'stdout' in notification_methods:
           print('%s: %.2f\t' % (label, score), end='')
