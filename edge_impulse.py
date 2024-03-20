@@ -10,7 +10,7 @@ monitored_categories=os.environ['MONITORED_CATEGORIES'].split(',')
 score_threshold=float(os.environ['SCORE_THRESHOLD'])
 webhook_url=os.environ['WEBHOOK_URL']
 model_name=os.environ['MODEL_NAME']
-device_id=os.environ['DEVICE_ID']
+device_id=int(os.environ['DEVICE_ID'])
 
 import asyncio
 
