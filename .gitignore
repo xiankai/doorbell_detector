@@ -1,6 +1,9 @@
 # Tensorflow Lite models
 *.tflite
 
+# Edge Impulse models
+*.eim
+
 # Pytorch models
 *.pt
 
