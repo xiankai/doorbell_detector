@@ -8,9 +8,6 @@ import datetime
 import os
 from dotenv import load_dotenv
 load_dotenv()
-
-from notifications.tapo import flicker
-from notifications.webhook import ping
 import asyncio
 
 # Choose ml strategy and model
@@ -25,6 +22,11 @@ init, inference, desired_sample_rate = module.init, module.inference, module.des
 
 # Parameters
 notification_methods=os.environ['NOTIFICATION_METHODS'].split(',')
+if 'webhook' in notification_methods:
+  from notifications.webhook import ping
+elif 'tapo' in notification_methods:
+  from notifications.tapo import flicker
+
 recording_sample_rate=int(os.environ['RECORDING_SAMPLE_RATE'])
 
 sampling_interval = desired_sample_rate / recording_sample_rate

@@ -9,6 +9,8 @@ LEFT_BULB=os.environ['LEFT_BULB']
 
 client = ApiClient(TAPO_USERNAME, TAPO_PASSWORD)
 
+right_bulb, left_bulb = None, None
+
 async def init():
   global right_bulb
   global left_bulb
