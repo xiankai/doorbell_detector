@@ -7,9 +7,3 @@ pandas
 torch
 torch_audiomentations
 torchaudio
-
-# Monitoring
-sounddevice
-requests
-python-dotenv
-tapo

@@ -1,7 +1,4 @@
 torch
 torchaudio
-sounddevice
 numpy
-requests
-python-dotenv
 pandas
