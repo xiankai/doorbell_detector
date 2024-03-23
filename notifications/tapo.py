@@ -23,7 +23,15 @@ async def init():
 
   return (right_bulb, left_bulb)
 
+recently_flickered = False
+
 async def flicker():
+  global recently_flickered
+  if recently_flickered:
+    return
+  else:
+    recently_flickered = True
+
   was_off = False
   (right_bulb, left_bulb) = await init()
 
@@ -45,6 +53,9 @@ async def flicker():
   else:
     right_bulb.set_brightness(20)
     left_bulb.set_brightness(20)
+
+  time.sleep(10)
+  recently_flickered = False
 
 # For testing
 # import asyncio
