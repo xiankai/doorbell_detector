@@ -1,6 +1,7 @@
 from tapo import ApiClient
 import time
 import os
+import sys
 
 TAPO_USERNAME=os.environ['TAPO_USERNAME']
 TAPO_PASSWORD=os.environ['TAPO_PASSWORD']
@@ -26,36 +27,40 @@ async def init():
 recently_flickered = False
 
 async def flicker():
-  global recently_flickered
-  if recently_flickered:
-    return
-  else:
-    recently_flickered = True
+  try:
+    global recently_flickered
+    if recently_flickered:
+      return
+    else:
+      recently_flickered = True
 
-  was_off = False
-  (right_bulb, left_bulb) = await init()
+    was_off = False
+    (right_bulb, left_bulb) = await init()
 
-  device_info_json = await right_bulb.get_device_info_json()
-  if device_info_json['device_on'] == False:
-    was_off = True
+    device_info_json = await right_bulb.get_device_info_json()
+    if device_info_json['device_on'] == False:
+      was_off = True
 
-  for i in range(1, 8):
-    right_brightness = 80 if i % 2 == 0 else 20
-    right_bulb.set_brightness(right_brightness)
-    left_brightness = 20 if i % 2 == 0 else 80
-    left_bulb.set_brightness(left_brightness)
-    time.sleep(1)
+    for i in range(1, 8):
+      right_brightness = 80 if i % 2 == 0 else 20
+      right_bulb.set_brightness(right_brightness)
+      left_brightness = 20 if i % 2 == 0 else 80
+      left_bulb.set_brightness(left_brightness)
+      time.sleep(1)
 
-  print('resetting')
-  if was_off:
-    await right_bulb.off()
-    await left_bulb.off()
-  else:
-    right_bulb.set_brightness(20)
-    left_bulb.set_brightness(20)
+    print('resetting')
+    if was_off:
+      await right_bulb.off()
+      await left_bulb.off()
+    else:
+      right_bulb.set_brightness(20)
+      left_bulb.set_brightness(20)
 
-  time.sleep(10)
-  recently_flickered = False
+    time.sleep(10)
+  except Exception as e:
+    print(e, file=sys.stderr)
+  finally:
+    recently_flickered = False
 
 # For testing
 # import asyncio
